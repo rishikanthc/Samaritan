@@ -4,13 +4,25 @@ import maps
 import replyNexmo as reply
 import bot
 import wiki
+import trial
+# import quickstart
+import subprocess as command
+# import twit
 # from googleapiclient.discovery import build
 
-# import searchGoogle
+import searchGoogle
+
+mode = "text"
+
+
+# print output
 
 app = Flask(__name__)
 number = 0
 messageReceived = ""
+
+
+
 
 
 @app.route('/')
@@ -34,19 +46,43 @@ def something():
 			end = parsed_key["result"]["parameters"]["end"]
 			directions = maps.getDirections(start, end)
 			print directions
-			reply.send_sms(number, directions)
+			if mode == "text":
+				reply.send_sms(number, directions)
 		elif parsed_key["result"]["metadata"]["intentName"] == "summary":
 			searchTerm = parsed_key["result"]["parameters"]["text"]
 			# searchRes = "Sorry, didn't follow that"
 			# if (searchTerm):
-			searchRes = wiki.searchWiki(searchTerm)
-			reply.send_sms(number, searchRes)
+			# searchRes = wiki.searchWiki(searchTerm)
+			searchRes = searchGoogle.parse_results(searchTerm)
+			if mode == "text":
+				reply.send_sms(number, searchRes)
+		elif parsed_key["result"]["metadata"]["intentName"] == "twitterread":
+			tweets = command.Popen("/home/ubuntu/flaskapp/twit.sh", stdout=command.PIPE, shell=True)
+			(output, err) = tweets.communicate()
+			tweets_status = tweets.wait()
+			print output
+			if mode == "text":
+				print reply.send_sms(number, output)
+		# 	n = parsed_key["result"]["parameters"]["content"]
+
+		elif parsed_key["result"]["metadata"]["intentName"] == "mailread":
+			# from googleapiclient.discovery import build
+
+			# mail = command.Popen("/home/ubuntu/flaskapp/mail.sh", stdout=command.PIPE, shell=True)
+			mail = command.Popen("python /home/ubuntu/flaskapp/quickstart.py", stdout=command.PIPE, shell=True)
+			(output, err) = mail.communicate()
+			mail_status = mail.wait()
+			print output
+			if mode == "text":
+				print reply.send_sms(number, output)
 		else:
-			print reply.send_sms(number, parsed_key["result"]["fulfillment"]["speech"])
+			if mode == "text":
+				print reply.send_sms(number, parsed_key["result"]["fulfillment"]["speech"])
 
 
 	else:
-		print reply.send_sms(number, parsed_key["result"]["fulfillment"]["speech"])
+		if mode == "text":
+			print reply.send_sms(number, parsed_key["result"]["fulfillment"]["speech"])
 		
 
 
@@ -62,9 +98,17 @@ def something():
 
 @app.route('/calls', methods = ['GET',  'POST'])
 def do_call():
-	data = request.get_json(silent=True)
-	print "CALLS", data
-	return jsonify({"status_code": 201})
+	# data = request.get_json(silent=True)
+	# print "CALLS", data
+	randomT = "Hi this is a trial custom message developed by few folks at Rutgers. Hope this comes out well."
+	# return jsonify({"action": "talk", "voiceName":"Russell", "text":randomT })
+	return (jsonify([
+	    {
+	        "action": "talk",
+	        "voiceName": "Russell",
+	        "text": randomT
+	    }
+	]))
 
 if __name__ == '__main__':
 	app.run(debug=True)

@@ -17,7 +17,7 @@ except ImportError:
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/gmail-python-quickstart.json
 SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
-CLIENT_SECRET_FILE = 'client_secret.json'
+CLIENT_SECRET_FILE = '/var/www/.credentials/client_secret.json'
 APPLICATION_NAME = 'Gmail API Python Quickstart'
 
 
@@ -46,7 +46,7 @@ def get_credentials():
             credentials = tools.run_flow(flow, store, flags)
         else: # Needed only for compatibility with Python 2.6
             credentials = tools.run(flow, store)
-        print('Storing credentials to ' + credential_path)
+        # print('Storing credentials to ' + credential_path)
     return credentials
 
 def main():
@@ -64,13 +64,12 @@ def main():
     results = service.users().messages().list(userId='me').execute()
     messages = results.get('messages',[])
 
-    if not labels:
-        print('No labels found.')
-    else:
-      print('Labels:')
-      for label in labels:
-        print("name: ", label['name'], "id: ", label['id'])
-
+    # if not labels:
+        # print('No labels found.')
+    # else:
+      # print('Labels:')
+      # for label in labels:
+        # print("name: ", label['name'], "id: ", label['id'])
     if not messages:
       print("none")
     else:
@@ -85,9 +84,10 @@ def main():
             unreadCount += 1
             headers = actual['payload']['headers']
             # print ("body: ",actual['snippet'])
-            for header in headers:
-                if header['name'] == 'From' :
-                    print ("From: ", header['value'])
+            # for header in headers:
+                # if header['name'] == 'From' :
+                    # print ("From: ", header['value'])
+      return "you have " + str(unreadCount) + " unread messages"
             # print ("name of header: ", header['name'])
         # print ("header", headers['name'])
         # for header in headers:
@@ -98,4 +98,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    ret = main()
+    print (ret)
