@@ -1,7 +1,11 @@
 from flask import Flask, jsonify
 from flask import request
+import maps
 
 app = Flask(__name__)
+number = 0
+messageReceived = ""
+
 
 @app.route('/')
 def test():
@@ -9,8 +13,13 @@ def test():
 
 @app.route('/sms/', methods=['GET', 'POST'])
 def something():
+	global number
+	global messageReceived
 	data = request.get_json(silent=True)
-	print "Message", data
+	number = data['msisdn']
+	messageReceived = data['text']
+	print "Message: ", messageReceived, "From: ", number
+	
 	#app.logger.debug('%s',request.get_data())	
 	return jsonify({201: "OK"})
 	#return (201,"SUCCESS")
