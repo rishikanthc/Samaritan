@@ -1,6 +1,10 @@
 from flask import Flask, jsonify
 from flask import request
 import maps
+import replyNexmo as reply
+
+
+# import searchGoogle
 
 app = Flask(__name__)
 number = 0
@@ -14,11 +18,17 @@ def test():
 @app.route('/sms/', methods=['GET', 'POST'])
 def something():
 	global number
-	global messageReceived
+	
 	data = request.get_json(silent=True)
+	print "raw: ", data
 	number = data['msisdn']
 	messageReceived = data['text']
 	print "Message: ", messageReceived, "From: ", number
+	reply.send_sms(number, "Successfully received: " + messageReceived)
+	# if "search" in messageReceived:
+	# 	print "Seqrch"
+	# 	print maps.getDirections("7C Smith Street, Boston", "902 Huntington Ave, Boston")
+
 	
 	#app.logger.debug('%s',request.get_data())	
 	return jsonify({201: "OK"})
