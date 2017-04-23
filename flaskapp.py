@@ -13,7 +13,7 @@ import subprocess as command
 import searchGoogle
 
 mode = "text"
-
+randomT = "Hi this is a trial custom message developed by few folks at Rutgers. Hope this comes out well."
 
 # print output
 
@@ -32,13 +32,19 @@ def test():
 @app.route('/sms/', methods=['GET', 'POST'])
 def something():
 	global number
-	
+	global mode
+	global randomT
 	data = request.get_json(silent=True)
 	print "raw: ", data
 	number = data['msisdn']
 	messageReceived = data['text']
 	print "From: ", number
 	parsed_key = bot.getKey(messageReceived)
+	if messageReceived == "mode: voice":
+		mode = "voice"
+	else:
+		mode ="text"
+	print ("Mode: ", mode)
 	if parsed_key["result"]["metadata"]:
 		print parsed_key["result"]["metadata"]["intentName"]
 		if parsed_key["result"]["metadata"]["intentName"] == "directions":
@@ -48,6 +54,9 @@ def something():
 			print directions
 			if mode == "text":
 				reply.send_sms(number, directions)
+			else:
+				randomT = directions
+				trial.make_call(number)
 		elif parsed_key["result"]["metadata"]["intentName"] == "summary":
 			searchTerm = parsed_key["result"]["parameters"]["text"]
 			# searchRes = "Sorry, didn't follow that"
@@ -56,6 +65,9 @@ def something():
 			searchRes = searchGoogle.parse_results(searchTerm)
 			if mode == "text":
 				reply.send_sms(number, searchRes)
+			else:
+				randomT = searchRes
+				trial.make_call(number)
 		elif parsed_key["result"]["metadata"]["intentName"] == "twitterread":
 			tweets = command.Popen("/home/ubuntu/flaskapp/twit.sh", stdout=command.PIPE, shell=True)
 			(output, err) = tweets.communicate()
@@ -63,6 +75,9 @@ def something():
 			print output
 			if mode == "text":
 				print reply.send_sms(number, output)
+			else:
+				randomT = output
+				trial.make_call(number)
 		# 	n = parsed_key["result"]["parameters"]["content"]
 
 		elif parsed_key["result"]["metadata"]["intentName"] == "mailread":
@@ -75,14 +90,22 @@ def something():
 			print output
 			if mode == "text":
 				print reply.send_sms(number, output)
+			else:
+				trial.make_call(number)
 		else:
 			if mode == "text":
 				print reply.send_sms(number, parsed_key["result"]["fulfillment"]["speech"])
+			else:
+				randomT = parsed_key["result"]["fulfillment"]["speech"]
+				trial.make_call(number)
 
 
 	else:
 		if mode == "text":
 			print reply.send_sms(number, parsed_key["result"]["fulfillment"]["speech"])
+		else:
+			randomT = parsed_key["result"]["fulfillment"]["speech"]
+			trial.make_call(number)
 		
 
 
@@ -100,7 +123,7 @@ def something():
 def do_call():
 	# data = request.get_json(silent=True)
 	# print "CALLS", data
-	randomT = "Hi this is a trial custom message developed by few folks at Rutgers. Hope this comes out well."
+	global randomT
 	# return jsonify({"action": "talk", "voiceName":"Russell", "text":randomT })
 	return (jsonify([
 	    {

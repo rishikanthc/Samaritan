@@ -63,9 +63,9 @@ client = nexmo.Client(
 # }]
 
 # print json.dumps(answer)
-def make_call():
+def make_call(number):
 	response = client.create_call({
-		'to': [{'type': 'phone', 'number': 13476155327}],
+		'to': [{'type': 'phone', 'number': number}],
 		'from': {'type': 'phone', 'number': 12034869034},
 		'answer_url': ["http://52.11.94.232/calls"]
 		})
@@ -80,4 +80,4 @@ def make_call():
 
 
 if __name__ == '__main__' :
-	make_call()
+	make_call(13476155327)
