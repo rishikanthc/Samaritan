@@ -7,6 +7,7 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
+
 try:
     import argparse
     flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
@@ -74,16 +75,19 @@ def main():
       print("none")
     else:
       count = 0
+      unreadCount = 0
       for message in messages:
-        count += 1
-	if count > 10:
-          break
+        count += 1 
+        # if unreadCount > 4:
+          # break
         actual = service.users().messages().get(userId='me', id=message['id'], format='full').execute()
-        headers = actual['payload']['headers']
-        print ("body: ",actual['snippet'])
-        for header in headers:
-            if header['name'] == 'From' :
-                print ("From: ", header['value'])
+        if ("UNREAD" in actual["labelIds"]) and ("Label_1" not in actual["labelIds"]):
+            unreadCount += 1
+            headers = actual['payload']['headers']
+            # print ("body: ",actual['snippet'])
+            for header in headers:
+                if header['name'] == 'From' :
+                    print ("From: ", header['value'])
             # print ("name of header: ", header['name'])
         # print ("header", headers['name'])
         # for header in headers:

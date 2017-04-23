@@ -19,15 +19,16 @@ def getDirections(start, finish):
 		))
 	ur = urllib.urlopen(url)
 	result = json.load(ur)
-	k = remove_html_tags(result['routes'][0]['legs'][0]['steps'][0]['html_instructions'] )
-	for i in range (1, len (result['routes'][0]['legs'][0]['steps'])):
+	k = ""
+	for i in range (0, len (result['routes'][0]['legs'][0]['steps'])):
 		j = result['routes'][0]['legs'][0]['steps'][i]['html_instructions'] 
 		#print j
 		k = k + ', ' + remove_html_tags(j)
 		# print k
-
+	if len(k) == 0:
+		k = "Sorry, couldn't find the said address"
 	return k
 
 if __name__ == "__main__":
-	tdir = getDirections("7C Smith Street, Boston", "902 Huntington Ave, Boston")
+	tdir = getDirections("Rutgers", "Edison")
 	print tdir
